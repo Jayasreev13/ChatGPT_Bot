@@ -25,7 +25,7 @@ def chatbot():
     searchbutton = st.button("Search")
     if searchbutton:
         response = openai.ChatCompletion.create(
-            model = 'gpt-3.5',
+            model = 'gpt-3.5-turbo',
             messages = messages
         )
         system_response=response["choices"][0]["message"]["content"]
