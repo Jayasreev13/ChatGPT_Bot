@@ -1,9 +1,10 @@
 import streamlit as st
 import openai
+import config
 from gtts import gTTS  # new import
 from io import BytesIO  # new import
 
-openai.api_key = "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"
+openai.api_key = config.api_key
 messages=[ {"role": "system", "content": "You are a helpful assistant."},]
 
 def text_to_speech(text):
