@@ -1,15 +1,17 @@
 import streamlit as st
 import openai
-import config
 from gtts import gTTS  # new import
 from io import BytesIO  # new import
 
-
-
 openai.api_key =st.secrets["OPENAI_API_KEY"]
-messages=[ {"role": "system", "content": "You are a helpful assistant."},]
 
+messages=[ 
+    {"role": "system", "content": "You are a helpful assistant."}, 
+]
 
+st.markdown("<h1 style='text-align: center; color: blue;'>Chat Bot Assistant </h1>", unsafe_allow_html=True)
+
+st.markdown("<h3 style='text-align: center; color: blue;'>Enter a prompt and let GPT-3 generate a response</h3>", unsafe_allow_html=True)
 
 def text_to_speech(text):
     """
@@ -23,29 +25,21 @@ def text_to_speech(text):
 
 def chatbot():
     global messages
-    #messages=[ {"role": "system", "content": "You are a helpful assistant."},]
     user_input = st.text_input("Enter a prompt: ")
     if user_input:
         messages.append({"role": "user", "content": user_input})
     searchbutton = st.button("Search")
     if searchbutton:
-        response = openai.ChatCompletion.create(
-            model = 'gpt-3.5-turbo',
+        response = openai.Completion.create(
+            model = 'gpt-3.5',
             messages = messages
         )
         system_response=response["choices"][0]["message"]["content"]
         messages.append({"role": "system", "content": system_response})
-        
+
         for message in messages:
             st.write(message["content"]) 
         st.audio(text_to_speech(system_response), format="audio/wav")
- 
-# Streamlit Dashboard
-st.markdown("<h1 style='text-align: center; color: blue;'>I am Jay! Your AI VideoBot </h1>", unsafe_allow_html=True)
-#st.image("jay_standgif.gif", width = 200)
-st.title("AI Videobot using GPT-3")
-st.header(" Start your Conversation with Jay!")
-#st.markdown("<h3 style='text-align: center; color: blue;'>Enter a prompt and let GPT generate a response</h3>", unsafe_allow_html=True)
 
-chatbot()                 
 
+chatbot()
