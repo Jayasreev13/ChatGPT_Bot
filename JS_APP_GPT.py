@@ -1,39 +1,46 @@
-import openai
 import streamlit as st
+import openai
+from gtts import gTTS  # new import
+from io import BytesIO  # new import
 
+openai.api_key = "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"
+messages=[ {"role": "system", "content": "You are a helpful assistant."},]
 
-st.title("ChatGPT-AI Bot")
+def text_to_speech(text):
+    """
+    Converts text to an audio file using gTTS and returns the audio file as binary data
+    """
+    audio_bytes = BytesIO()
+    tts = gTTS(text=text, lang="en")
+    tts.write_to_fp(audio_bytes)
+    audio_bytes.seek(0)
+    return audio_bytes.read()
 
-openai.api_key="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"
+def chatbot():
+    global messages
+    #messages=[ {"role": "system", "content": "You are a helpful assistant."},]
+    user_input = st.text_input("Enter a prompt: ")
+    if user_input:
+        messages.append({"role": "user", "content": user_input})
+    searchbutton = st.button("Search")
+    if searchbutton:
+        response = openai.ChatCompletion.create(
+            model = 'gpt-3.5',
+            messages = messages
+        )
+        system_response=response["choices"][0]["message"]["content"]
+        messages.append({"role": "system", "content": system_response})
+        
+        for message in messages:
+            st.write(message["content"]) 
+        st.audio(text_to_speech(system_response), format="audio/wav")
+ 
+# Streamlit Dashboard
+st.markdown("<h1 style='text-align: center; color: blue;'>I am Jay! Your AI VideoBot </h1>", unsafe_allow_html=True)
+#st.image("jay_standgif.gif", width = 200)
+st.title("AI Videobot using GPT-3")
+st.header(" Start your Conversation with Jay!")
+#st.markdown("<h3 style='text-align: center; color: blue;'>Enter a prompt and let GPT generate a response</h3>", unsafe_allow_html=True)
 
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5"
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-        for response in openai.ChatCompletion.create(
-            model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        ):
-            full_response += response.choices[0].delta.get("content", "")
-            message_placeholder.markdown(full_response + "▌")
-        message_placeholder.markdown(full_response)
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+chatbot()                 
 
